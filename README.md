@@ -1,3 +1,14 @@
+# Gestión de Licencias y Claves (Supabase)
+
+Este proyecto gestiona licencias y *keys* de pantallas utilizando Supabase como base de datos y backend con políticas de seguridad a nivel de fila (RLS).
+
+---
+
+## Base de Datos (SQL Schema)
+
+Ejecuta las siguientes sentencias en el **SQL Editor** de Supabase para crear la tabla de licencias y configurar la seguridad RLS:
+
+```sql
 -- Crear la tabla de licencias/keys
 CREATE TABLE pantalla_keys (
     id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
@@ -5,7 +16,7 @@ CREATE TABLE pantalla_keys (
     numero_comprador TEXT NOT NULL,
     proveedor TEXT NOT NULL CHECK (proveedor IN ('g2a', 'royalkeys', 'nfkeys')),
     created_at TIMESTAMPTZ DEFAULT NOW(),
-    user_id UUID DEFAULT auth.uid() -- Opcional: Asocia el registro al usuario autenticado
+    user_id UUID DEFAULT auth.uid() -- Asocia el registro al usuario autenticado
 );
 
 -- 1. Habilitar RLS en la tabla
@@ -39,28 +50,3 @@ ON pantalla_keys
 FOR DELETE 
 TO authenticated 
 USING (auth.uid() = user_id);
-
-## Puesta en marcha
-
-1. En Supabase, ejecuta el SQL anterior en el SQL Editor.
-2. Copia la URL del proyecto y la clave pública `anon` en el archivo `.env`:
-
-   ```env
-   VITE_SUPABASE_URL=https://tu-proyecto.supabase.co
-   VITE_SUPABASE_ANON_KEY=tu-clave-anon-publica
-   ```
-
-3. Instala dependencias y arranca la aplicación:
-
-   ```bash
-   npm install
-   npm run dev
-   ```
-
-La aplicación incluye registro e inicio de sesión con Supabase para cumplir las
-políticas RLS de la tabla. En el proveedor `g2a`, el valor de
-`key_pantalla` se guarda en una sola celda con el formato exacto:
-`correo@ejemplo.com / contraseña`. La misma cadena se muestra en el listado.
-
-El header incluye enlaces directos a RoyalKeys, NFKeys y al panel de claves de
-G2A. El archivo `.env` está excluido de Git para no publicar credenciales.
