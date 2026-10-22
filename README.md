@@ -50,3 +50,28 @@ ON pantalla_keys
 FOR DELETE 
 TO authenticated 
 USING (auth.uid() = user_id);
+
+## Puesta en marcha
+
+1. En Supabase, ejecuta el SQL anterior en el SQL Editor.
+2. Copia la URL del proyecto y la clave pública `anon` en el archivo `.env`:
+
+   ```env
+   VITE_SUPABASE_URL=https://tu-proyecto.supabase.co
+   VITE_SUPABASE_ANON_KEY=tu-clave-anon-publica
+   ```
+
+3. Instala dependencias y arranca la aplicación:
+
+   ```bash
+   npm install
+   npm run dev
+   ```
+
+La aplicación incluye registro e inicio de sesión con Supabase para cumplir las
+políticas RLS de la tabla. En el proveedor `g2a`, el valor de
+`key_pantalla` se guarda en una sola celda con el formato exacto:
+`correo@ejemplo.com / contraseña`. La misma cadena se muestra en el listado.
+
+El header incluye enlaces directos a RoyalKeys, NFKeys y al panel de claves de
+G2A. El archivo `.env` está excluido de Git para no publicar credenciales.
