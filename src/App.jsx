@@ -31,6 +31,7 @@ function App() {
   const [authForm, setAuthForm] = useState({ email: '', password: '' })
   const [authMode, setAuthMode] = useState('login')
   const [loading, setLoading] = useState(false)
+  const [search, setSearch] = useState('')
   const [message, setMessage] = useState({ type: '', text: '' })
 
   const isConfigured = Boolean(supabase)
@@ -39,6 +40,14 @@ function App() {
     () => links.find((link) => link.tone === form.provider)?.label ?? form.provider,
     [form.provider],
   )
+  const filteredRecords = useMemo(() => {
+    const query = search.trim().toLocaleLowerCase()
+    if (!query) return records
+    return records.filter((record) =>
+      [record.key_pantalla, record.numero_comprador]
+        .some((value) => String(value).toLocaleLowerCase().includes(query)),
+    )
+  }, [records, search])
 
   useEffect(() => {
     if (!supabase) return undefined
@@ -205,7 +214,8 @@ function App() {
 
           <section className="panel records-panel">
             <div className="panel-heading"><div><p className="eyebrow">Biblioteca</p><h2>Tus registros</h2></div><span className="count-badge">{records.length}</span></div>
-            {records.length === 0 ? <div className="empty-state"><div className="empty-icon">⌁</div><h3>Aún no hay registros</h3><p>Completa el formulario para añadir tu primer acceso.</p></div> : <div className="records-list">{records.map((record) => <article className="record" key={record.id}><div className={`provider-icon ${record.proveedor}`}>{record.proveedor === 'g2a' ? 'G' : record.proveedor === 'nfkeys' ? 'N' : 'R'}</div><div className="record-info"><div className="record-title"><strong>{record.proveedor}</strong><time>{new Date(record.created_at).toLocaleDateString('es-ES')}</time></div><code>{record.key_pantalla}</code><span>Comprador · {record.numero_comprador}</span></div><button className="delete-button" aria-label="Eliminar registro" onClick={() => handleDelete(record.id)}>×</button></article>)}</div>}
+            <div className="search-box"><span aria-hidden="true">⌕</span><input type="search" value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Buscar por key o número de teléfono" aria-label="Buscar por key o número de teléfono" />{search && <button type="button" onClick={() => setSearch('')} aria-label="Limpiar búsqueda">×</button>}</div>
+            {records.length === 0 ? <div className="empty-state"><div className="empty-icon">⌁</div><h3>Aún no hay registros</h3><p>Completa el formulario para añadir tu primer acceso.</p></div> : filteredRecords.length === 0 ? <div className="empty-state"><div className="empty-icon">⌕</div><h3>No se encontraron registros</h3><p>Prueba con otra key o número de teléfono.</p></div> : <div className="records-list">{filteredRecords.map((record) => <article className="record" key={record.id}><div className={`provider-icon ${record.proveedor}`}>{record.proveedor === 'g2a' ? 'G' : record.proveedor === 'nfkeys' ? 'N' : 'R'}</div><div className="record-info"><div className="record-title"><strong>{record.proveedor}</strong><time>{new Date(record.created_at).toLocaleDateString('es-ES')}</time></div><code>{record.key_pantalla}</code><span>Comprador · {record.numero_comprador}</span></div><button className="delete-button" aria-label="Eliminar registro" onClick={() => handleDelete(record.id)}>×</button></article>)}</div>}
           </section>
         </section>
       </main>
