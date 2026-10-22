@@ -1,3 +1,14 @@
+# Gestión de Licencias y Claves (Supabase)
+
+Este proyecto gestiona licencias y *keys* de pantallas utilizando Supabase como base de datos y backend con políticas de seguridad a nivel de fila (RLS).
+
+---
+
+## Base de Datos (SQL Schema)
+
+Ejecuta las siguientes sentencias en el **SQL Editor** de Supabase para crear la tabla de licencias y configurar la seguridad RLS:
+
+```sql
 -- Crear la tabla de licencias/keys
 CREATE TABLE pantalla_keys (
     id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
@@ -5,7 +16,7 @@ CREATE TABLE pantalla_keys (
     numero_comprador TEXT NOT NULL,
     proveedor TEXT NOT NULL CHECK (proveedor IN ('g2a', 'royalkeys', 'nfkeys')),
     created_at TIMESTAMPTZ DEFAULT NOW(),
-    user_id UUID DEFAULT auth.uid() -- Opcional: Asocia el registro al usuario autenticado
+    user_id UUID DEFAULT auth.uid() -- Asocia el registro al usuario autenticado
 );
 
 -- 1. Habilitar RLS en la tabla
